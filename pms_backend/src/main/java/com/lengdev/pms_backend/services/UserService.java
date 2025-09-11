@@ -21,8 +21,28 @@ public class UserService {
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
     public Users register(Users user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepo.save(user);
+        Users existingUser = userRepo.findByEmail(user.getEmail());
+        
+       try {
+         if(existingUser != null){
+            throw new RuntimeException("User with email " + user.getEmail() + " already exists");
+         }else{
+            if(user.getEmail()==null || user.getPassword()==null){
+            throw new RuntimeException("Email and Password are required");
+            }
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setEmail(user.getEmail());
+            user.setRole(user.getRole() != null ? user.getRole() : Users.Role.TENANT);
+
+            return userRepo.save(user);
+         }
+         
+       } catch (Exception e) {
+        e.printStackTrace();
+
+        throw new RuntimeException("Registration failed: " + e.getMessage());
+       }
+
     }
     public String verify(Users user){
         Authentication auth=authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
