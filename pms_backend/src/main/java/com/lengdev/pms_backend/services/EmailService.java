@@ -1,5 +1,7 @@
 package com.lengdev.pms_backend.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -10,6 +12,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import jakarta.mail.internet.MimeMessage;
 @Service
 public class EmailService {
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+
     @Autowired
     private JavaMailSender mailSender;
 
@@ -58,9 +62,9 @@ public class EmailService {
             helper.setText(content, true);
             mailSender.send(mimeMessage);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error sending email to {}: {}", email, e.getMessage(), e);
             // Handle exception
-            System.out.println("Error sending email: " + e.getMessage());
+            throw new RuntimeException("Failed to send email", e);
         }
     }
 }
