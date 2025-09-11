@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lengdev.pms_backend.models.Users;
 import com.lengdev.pms_backend.services.UserService;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+
 @RestController
 public class UserController {
     @Autowired
@@ -24,8 +27,20 @@ public class UserController {
         return new ResponseEntity<>("Account Created. Please check your email to verify your account.", HttpStatus.CREATED);
     }
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Users user){
-        return new ResponseEntity<>(userService.verify(user), HttpStatus.OK);
+    public ResponseEntity<String> login(@RequestBody Users user, HttpServletResponse response) {
+        String token = userService.verify(user);
+        
+        // Create a cookie with the JWT token
+        Cookie jwtCookie = new Cookie("jwtToken", token);
+        jwtCookie.setHttpOnly(true); // Prevent access via JavaScript
+        jwtCookie.setSecure(false); // Set to true in production with HTTPS
+        jwtCookie.setPath("/"); // Available for all paths
+        jwtCookie.setMaxAge(24 * 60 * 60); // 24 hours
+        
+        // Add the cookie to the response
+        response.addCookie(jwtCookie);
+        
+        return new ResponseEntity<>("Login successful", HttpStatus.OK);
     }
 
     @GetMapping("/register/verify")

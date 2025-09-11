@@ -73,6 +73,7 @@ public class UserService {
             user.setVerificationToken(jwtService.generateToken(user.getUsername()));
             return user.getVerificationToken();
         }
+        
         return "Error in Login";
     }
     
