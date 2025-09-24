@@ -30,16 +30,6 @@ services:
       - banknet
     ports:
       - "6001:8081"
-  auth-service:
-    build: ../auth-service
-    depends_on:
-      kafka:
-        condition: service_healthy
-    networks:
-      -banknet:
-    ports:
-      - "6002:8082"
-
   gateway-service:
     build: ../gateway-service
     depends_on:
@@ -47,8 +37,6 @@ services:
         condition: service_started
       kafka:
         condition: service_healthy
-      auth-service:
-        condition: service_started
     networks:
       - banknet
     ports:
